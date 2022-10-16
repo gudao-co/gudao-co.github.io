@@ -1,0 +1,289 @@
+import { Alert, Button, Card, Label, Select, Spinner, TextInput, Tooltip } from 'flowbite-react';
+import { useTranslation } from "../../i18n";
+import useWallet from '../../use/useWallet';
+import { setWalletChooses } from '../../use/useWalletChooses';
+import useWalletReady from '../../use/useWalletReady';
+import { TX } from 'gudao-co-core/dist/progress';
+import { getErrmsg } from 'gudao-co-core/dist/error';
+import { useState } from 'react';
+import { HiInformationCircle } from 'react-icons/hi';
+import { TiTick } from 'react-icons/ti';
+import { useParams, useSearchParams } from 'react-router-dom';
+import useNetwork from '../../use/useNetwork';
+import { Currency, CurrencyValue, newValue } from 'gudao-co-core/dist/currency';
+import { getBalance } from 'gudao-co-core/dist/balance';
+import { withdraw } from 'gudao-co-core/dist/project';
+import CopyToClipboard from 'react-copy-to-clipboard';
+import { BiCopyAlt } from 'react-icons/bi';
+import { getProjectOwner } from 'gudao-co-core/dist/project';
+
+function ProjWithdraw() {
+  const { t } = useTranslation()
+  const [wallet,] = useWallet()
+  const [isReady,] = useWalletReady()
+  const [loading, setLoading] = useState(false)
+  const [progress, setProgress] = useState('')
+  const [errmsg, setErrmsg] = useState('')
+  const [tx, setTX] = useState<TX>()
+  const params = useParams()
+  const [searchParams,] = useSearchParams()
+  const [network,] = useNetwork()
+  const [amount, setAmount] = useState('')
+  const [currency, setCurrency] = useState<Currency>()
+  const [balances, setBlanances] = useState<CurrencyValue[]>()
+  const [copyed, setCopyed] = useState(false)
+  const [owner, setOwner] = useState<string>()
+
+  if (!isReady) {
+    return (<></>)
+  }
+
+  if (!wallet) {
+    setWalletChooses({ allowClosed: false })
+    return (<></>)
+  }
+
+  let currCurrency = currency
+
+  if (!currCurrency) {
+    if (searchParams.get('currency')) {
+      let v = searchParams.get('currency')
+      for (let item of network!.currencys) {
+        if (item.addr === v) {
+          currCurrency = item
+          setCurrency(item)
+          break
+        }
+      }
+    } else {
+      currCurrency = network!.currencys[0]
+      setCurrency(currCurrency)
+    }
+  }
+
+  if (!owner) {
+    getProjectOwner(params.addr!).then((rs) => {
+      setOwner(rs)
+    })
+  }
+
+  const updateWalletBalance = (curr?: Currency) => {
+    if (!curr) {
+      curr = currCurrency
+    }
+    if (curr && wallet) {
+      Promise.all([getBalance(wallet, params.addr!, curr)]).then((rs) => {
+        setBlanances(rs)
+        if (amount === "") {
+          setAmount(rs[0].value.replace(',', ''))
+        }
+      })
+    }
+  };
+
+  const onSubmit = () => {
+    if (loading) {
+      return
+    }
+    setLoading(true)
+    setErrmsg('')
+    setTX(undefined)
+    withdraw(params.addr!, newValue(amount, currCurrency!), (s) => {
+      if (s.name === 'tx') {
+        setTX(s.tx!)
+      } else if (s.title) {
+        setProgress(s.title)
+      }
+    }).then((rs) => {
+      updateWalletBalance()
+      setLoading(false)
+    }, (reason) => {
+      setErrmsg(getErrmsg(reason))
+      setLoading(false)
+    })
+    return false;
+  };
+
+  const onCurrency = (addr: string) => {
+    if (network) {
+      for (let item of network.currencys) {
+        if (item.addr === addr) {
+          setCurrency(item)
+          setBlanances(undefined)
+          updateWalletBalance(item)
+          break
+        }
+      }
+    }
+  }
+
+  if (currCurrency && wallet && !balances) {
+    updateWalletBalance()
+  }
+
+  let failureAlert = <></>
+
+  if (errmsg) {
+    failureAlert =
+      <div className='pt-4'>
+        <Alert
+          color="failure"
+          icon={HiInformationCircle}
+        >
+          <span>
+            {errmsg}
+          </span>
+        </Alert>
+      </div>
+  }
+
+  let loadingSpinner = (light: boolean = true) => {
+    return <></>
+  }
+
+  if (loading) {
+    loadingSpinner = (light: boolean = true) => {
+      return <Spinner color="success" size="sm" light={light} style={{ lineHeight: "100%", marginRight: "6px" }} ></Spinner>
+    }
+  }
+
+  let infoAlert = <></>
+
+  if (tx) {
+    infoAlert =
+      <div className='pt-4'>
+        <Alert
+          color={loading ? 'info' : 'success'}
+          icon={loading ? undefined : TiTick}
+        >
+          <span>
+            {loadingSpinner(false)}
+            <span className="font-medium align-middle">
+              {'TX: '}
+            </span>
+            <a href={tx.url} target="_blank" rel="noreferrer" className='align-middle'>{tx.hash.substring(0, 12) + '...' + tx.hash.substring(tx.hash.length - 6)}</a>
+          </span>
+        </Alert>
+      </div>
+  }
+
+  return (
+    <div className="container mx-auto min-w-fit max-w-xl">
+      <div className='flex justify-end pt-4 align-middle'>
+        <div className='truncate font-medium text-3xl text-gray-900 dark:text-white flex-1 flex flex-row items-center'>
+          Withdraw
+        </div>
+      </div>
+      {failureAlert}
+      {infoAlert}
+      <div className='pt-4'>
+        <Card>
+          <form className="flex flex-col gap-4" onSubmit={(e) => { e.preventDefault(); return onSubmit(); }}>
+            <div>
+              <div className="mb-2 block">
+                <Label
+                  htmlFor="currency"
+                  value="Currency"
+                />
+              </div>
+              <Select id="currency"
+                value={currCurrency ? currCurrency.addr : ''}
+                onChange={(e) => onCurrency(e.currentTarget.value)}
+                required={true}
+                disabled={loading}
+                color="info">
+                {
+                  network!.currencys.map(item => (
+                    <option value={item.addr} key={item.addr}>{item.name}</option>
+                  ))
+                }
+              </Select>
+            </div>
+            <div>
+              <div className="mb-2 block">
+                <Label
+                  htmlFor="from"
+                  value="From"
+                />
+              </div>
+              <TextInput
+                id="from"
+                type="text"
+                value={params.addr}
+                readOnly={true}
+                addon={
+                  <Tooltip content={copyed ? 'Copyed!' : 'Copy'}>
+                    <CopyToClipboard text={params.addr || ""} onCopy={() => setCopyed(true)}>
+                      <BiCopyAlt className='inline-flex mx-2 cursor-pointer w-5 h-5'></BiCopyAlt>
+                    </CopyToClipboard>
+                  </Tooltip>
+                }
+              />
+            </div>
+            <div>
+              <div className="mb-2 block">
+                <Label
+                  htmlFor="to"
+                  value="To Owner"
+                />
+              </div>
+              <TextInput
+                id="to"
+                type="text"
+                value={owner ? owner : '--'}
+                readOnly={true}
+                addon={
+                  <Tooltip content={copyed ? 'Copyed!' : 'Copy'}>
+                    <CopyToClipboard text={owner || ""} onCopy={() => setCopyed(true)}>
+                      <BiCopyAlt className='inline-flex mx-2 cursor-pointer w-5 h-5'></BiCopyAlt>
+                    </CopyToClipboard>
+                  </Tooltip>
+                }
+              />
+            </div>
+            <div>
+              <div className="mb-2 block">
+                <Label
+                  htmlFor="currentBalance"
+                  value="Current Balance"
+                />
+              </div>
+              <TextInput
+                id="currentBalance"
+                type="text"
+                value={balances ? balances[0].value : '--'}
+                readOnly={true}
+                addon={currCurrency ? currCurrency.symbol : ""}
+              />
+            </div>
+            <div>
+              <div className="mb-2 block">
+                <Label
+                  htmlFor="amount"
+                  value="Amount"
+                />
+              </div>
+              <TextInput
+                id="amount"
+                type="number"
+                value={amount}
+                inputMode="decimal"
+                color="info"
+                onChange={(e) => setAmount(e.currentTarget.value)}
+                addon={currCurrency ? currCurrency.symbol : ""}
+                required={true}
+                disabled={loading}
+              />
+            </div>
+            <Button type="submit" disabled={loading || !currency || !owner}>
+              {loadingSpinner(true)}
+              {t(loading ? progress : 'Withdraw')}
+            </Button>
+          </form>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+export default ProjWithdraw;
