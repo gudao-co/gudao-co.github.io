@@ -5,7 +5,6 @@ import { Task, queryTasksByProj } from 'gudao-co-core/dist/task';
 import { useTranslation } from "../../i18n";
 import { useState } from 'react';
 import { HiInformationCircle } from 'react-icons/hi';
-import ProjList from '../../view/ProjList';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import useWallet from '../../use/useWallet';
 import { nextTick } from 'process';

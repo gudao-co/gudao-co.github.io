@@ -22,6 +22,7 @@ import useAlert from './use/useAlert';
 import TaskCreate from './page/task/TaskCreate';
 import TaskPage from './page/task/Task';
 import TaskDeposit from './page/task/TaskDeposit';
+import ProjTasks from './page/proj/ProjTasks';
 
 function App() {
   const { t } = useTranslation()
@@ -124,6 +125,7 @@ function App() {
           <Route path="/proj">
             <Route path="create" element={<ProjCreate></ProjCreate>}> </Route>
             <Route path="deposit" element={<ProjDeposit></ProjDeposit>}></Route>
+            <Route path="tasks" element={<ProjTasks></ProjTasks>}></Route>
             <Route path=":id" element={<Proj></Proj>}> </Route>
           </Route>
           <Route path="task">
