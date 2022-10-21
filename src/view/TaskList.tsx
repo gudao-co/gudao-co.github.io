@@ -1,10 +1,10 @@
-import { Project } from 'gudao-co-core/dist/project';
+import { Task } from 'gudao-co-core/dist/task';
 import { HiOutlineChevronRight } from 'react-icons/hi';
 import { Link } from 'react-router-dom';
 import Logo from './Logo';
 
-function ProjList(props: {
-    items: Project[]
+function TaskList(props: {
+    items: Task[]
 }) {
     return (
         <ul className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -21,7 +21,7 @@ function ProjList(props: {
                                 </p>
                             </span>
                             <span className="inline-flex items-center text-xl font-semibold text-gray-900 dark:text-white">
-                                <span>{item.taskCount}</span>
+                                <span>{item.pullRequestCount}</span>
                                 <HiOutlineChevronRight className='ml-2'></HiOutlineChevronRight>
                             </span>
                         </Link>
@@ -32,4 +32,4 @@ function ProjList(props: {
     );
 }
 
-export default ProjList;
+export default TaskList;

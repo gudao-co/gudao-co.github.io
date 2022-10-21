@@ -14,12 +14,14 @@ import Grants from './page/Grants';
 import WalletChooses from './view/WalletChooses';
 import ProjCreate from './page/proj/ProjCreate';
 import Proj from './page/proj/Proj';
-import Deposit from './page/proj/ProjDeposit';
-import ProjWithdraw from './page/proj/ProjWithdraw';
+import ProjDeposit from './page/proj/ProjDeposit';
 import { HiOutlineMail } from 'react-icons/hi';
 import { TbBrandTelegram } from 'react-icons/tb';
 import LanguageChooses from './view/LanguageChooses';
 import useAlert from './use/useAlert';
+import TaskCreate from './page/task/TaskCreate';
+import TaskPage from './page/task/Task';
+import TaskDeposit from './page/task/TaskDeposit';
 
 function App() {
   const { t } = useTranslation()
@@ -121,9 +123,13 @@ function App() {
           <Route path="/ability" element={<Ability></Ability>}></Route>
           <Route path="/proj">
             <Route path="create" element={<ProjCreate></ProjCreate>}> </Route>
-            <Route path="withdraw/:addr" element={<ProjWithdraw></ProjWithdraw>}></Route>
-            <Route path="deposit/:addr" element={<Deposit></Deposit>}></Route>
-            <Route path=":addr" element={<Proj></Proj>}> </Route>
+            <Route path="deposit" element={<ProjDeposit></ProjDeposit>}></Route>
+            <Route path=":id" element={<Proj></Proj>}> </Route>
+          </Route>
+          <Route path="task">
+            <Route path="create" element={<TaskCreate></TaskCreate>}> </Route>
+            <Route path="deposit" element={<TaskDeposit></TaskDeposit>}></Route>
+            <Route path=":id" element={<TaskPage></TaskPage>}> </Route>
           </Route>
         </Routes>
       </div>

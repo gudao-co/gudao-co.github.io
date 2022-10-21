@@ -1,7 +1,6 @@
 import { Alert, Card, Spinner } from 'flowbite-react';
 import { getErrmsg } from 'gudao-co-core/dist/error';
-import { getProject, Project } from 'gudao-co-core/dist/project';
-import { getBalances } from 'gudao-co-core/dist/project';
+import { getTask, Task, getBalances } from 'gudao-co-core/dist/task';
 import { useState } from 'react';
 import { HiInformationCircle, HiOutlineChevronRight } from 'react-icons/hi';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -22,13 +21,13 @@ enum State {
     Failure
 }
 
-function Proj() {
+function TaskPage() {
     const { t } = useTranslation()
     const params = useParams()
     const navigate = useNavigate()
     const [state, setState] = useState<State>(State.None)
     const [errmsg, setErrmsg] = useState('')
-    const [project, setProject] = useState<Project>()
+    const [task, setTask] = useState<Task>()
     const [network,] = useNetwork()
     const [wallet,] = useWallet()
     const [isReady,] = useWalletReady()
@@ -57,8 +56,8 @@ function Proj() {
     }
 
     if (state === State.None) {
-        getProject(id!).then((rs) => {
-            setProject(rs)
+        getTask(id!).then((rs) => {
+            setTask(rs)
             setState(State.Success)
         }, (reason) => {
             setErrmsg(getErrmsg(reason))
@@ -68,14 +67,14 @@ function Proj() {
     }
 
 
-    let createTask = <></>
+    let newPullRequest = <></>
 
-    if (project && wallet) {
-        createTask = <Link
-            to={"/task/create?proj_id=" + project!.id}
+    if (task && wallet) {
+        newPullRequest = <Link
+            to={"/task/pull/create?task_id=" + task!.id}
             className="inline-flex items-center rounded-lg bg-blue-700 py-2 px-4 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
         >
-            {t('Create Task')}
+            {t('New pull request')}
         </Link>
     }
 
@@ -104,7 +103,7 @@ function Proj() {
     } else {
 
         if (!balances) {
-            getBalances(project!.id, network!.currencys).then((rs) => {
+            getBalances(task!.id, network!.currencys).then((rs) => {
                 setBlanances(rs)
             })
         }
@@ -112,25 +111,25 @@ function Proj() {
         card = <Card>
             <div className="flex flex-col items-center pb-10">
                 <div className="mb-3">
-                    <Logo addr={project!.erc721_name + '#' + project!.id} size="lg"></Logo>
+                    <Logo addr={task!.erc721_name + '#' + task!.id} size="lg"></Logo>
                 </div>
                 <h5 className="mb-1 text-xl font-medium text-gray-900 dark:text-white">
-                    {project!.erc721_name}#{project!.id}
+                    {task!.erc721_name}#{task!.id}
                 </h5>
 
                 <ul className="divide-y divide-gray-200 dark:divide-gray-700 min-w-full">
                     <li className="py-3 sm:py-4 min-w-full cursor-pointer hover:opacity-75">
-                        <Link className="flex items-center space-x-4" to={'/proj/tasks?id=' + project!.id}>
+                        <Link className="flex items-center space-x-4" to={'/task/pulls?task_id=' + task!.id}>
                             <span className="shrink-0">
-                                <Logo addr={project!.erc721_name + '#' + project!.id} size="sm"></Logo>
+                                <Logo addr={task!.erc721_name + '#' + task!.id} size="sm"></Logo>
                             </span>
                             <span className="min-w-0 flex-1">
                                 <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
-                                    Task
+                                    Pull Request
                                 </p>
                             </span>
                             <span className="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                                <span>{project!.taskCount}</span>
+                                <span>{task!.pullRequestCount}</span>
                                 <HiOutlineChevronRight className='ml-2'></HiOutlineChevronRight>
                             </span>
                         </Link>
@@ -138,7 +137,7 @@ function Proj() {
                     {
                         network!.currencys.map((item, index) => (
                             <li className="py-3 sm:py-4 min-w-full cursor-pointer hover:opacity-75" key={item.addr}>
-                                <Link className="flex items-center space-x-4" to={"/proj/deposit?id=" + project!.id + '&currency=' + item.addr}>
+                                <Link className="flex items-center space-x-4" to={"/task/deposit?id=" + task!.id + '&currency=' + item.addr}>
                                     <span className="shrink-0">
                                         <Logo addr={item.addr} size="sm"></Logo>
                                     </span>
@@ -158,7 +157,7 @@ function Proj() {
                 </ul>
                 <div className="mt-4 flex space-x-3 lg:mt-6">
                     <Link
-                        to={"/proj/deposit?id=" + project!.id}
+                        to={"/task/deposit?id=" + task!.id}
                         className="inline-flex items-center rounded-lg border border-gray-300 bg-white py-2 px-4 text-center text-sm font-medium text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:hover:border-gray-700 dark:hover:bg-gray-700 dark:focus:ring-gray-700"
                     >
                         {t('Deposit')}
@@ -169,7 +168,7 @@ function Proj() {
 
         gist = <Card>
             <ReactEmbedGist
-                gist={`${project!.gist_user}/${project!.gist_id}`}
+                gist={`${task!.gist_user}/${task!.gist_id}`}
                 wrapperClass="gist__bash"
                 loadingClass="mb-1 text-md font-medium text-gray-900 dark:text-white"
                 titleClass="gist__title"
@@ -184,9 +183,9 @@ function Proj() {
         <div className="container mx-auto max-w-xs sm:max-w-xl">
             <div className='flex justify-end pt-4 align-middle'>
                 <div className='truncate font-medium text-3xl text-gray-900 dark:text-white flex-1 flex flex-row items-center'>
-                    Project
+                    Task
                 </div>
-                {createTask}
+                {newPullRequest}
             </div>
             {failureAlert}
             <div className='pt-4'>
@@ -199,4 +198,4 @@ function Proj() {
     );
 }
 
-export default Proj;
+export default TaskPage;

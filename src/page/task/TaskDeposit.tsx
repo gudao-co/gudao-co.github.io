@@ -1,4 +1,4 @@
-import { Alert, Button, Card, Label, Select, Spinner, TextInput, Tooltip } from 'flowbite-react';
+import { Alert, Button, Card, Label, Select, Spinner, TextInput } from 'flowbite-react';
 import { useTranslation } from "../../i18n";
 import useWallet from '../../use/useWallet';
 import { setWalletChooses } from '../../use/useWalletChooses';
@@ -8,16 +8,13 @@ import { getErrmsg } from 'gudao-co-core/dist/error';
 import { useState } from 'react';
 import { HiInformationCircle } from 'react-icons/hi';
 import { TiTick } from 'react-icons/ti';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import useNetwork from '../../use/useNetwork';
 import { Currency, CurrencyValue, newValue } from 'gudao-co-core/dist/currency';
 import { getBalance } from 'gudao-co-core/dist/balance';
-import { withdraw } from 'gudao-co-core/dist/project';
-import CopyToClipboard from 'react-copy-to-clipboard';
-import { BiCopyAlt } from 'react-icons/bi';
-import { getProjectOwner } from 'gudao-co-core/dist/project';
+import { deposit, getBalance as getTaskBalance } from 'gudao-co-core/dist/task';
 
-function ProjWithdraw() {
+function TaskDeposit() {
   const { t } = useTranslation()
   const [wallet,] = useWallet()
   const [isReady,] = useWalletReady()
@@ -25,14 +22,20 @@ function ProjWithdraw() {
   const [progress, setProgress] = useState('')
   const [errmsg, setErrmsg] = useState('')
   const [tx, setTX] = useState<TX>()
-  const params = useParams()
   const [searchParams,] = useSearchParams()
   const [network,] = useNetwork()
-  const [amount, setAmount] = useState('')
+  const [amount, setAmount] = useState(searchParams.get('amount') || '100')
   const [currency, setCurrency] = useState<Currency>()
   const [balances, setBlanances] = useState<CurrencyValue[]>()
-  const [copyed, setCopyed] = useState(false)
-  const [owner, setOwner] = useState<string>()
+  const navigate = useNavigate()
+  const [balancesLoading, setBalancesLoading] = useState(false)
+
+  const id = searchParams.get('id')
+
+  if (!id) {
+    navigate('/')
+    return (<></>)
+  }
 
   if (!isReady) {
     return (<></>)
@@ -61,22 +64,18 @@ function ProjWithdraw() {
     }
   }
 
-  if (!owner) {
-    getProjectOwner(params.addr!).then((rs) => {
-      setOwner(rs)
-    })
-  }
-
   const updateWalletBalance = (curr?: Currency) => {
     if (!curr) {
       curr = currCurrency
     }
     if (curr && wallet) {
-      Promise.all([getBalance(wallet, params.addr!, curr)]).then((rs) => {
+      setBalancesLoading(true)
+      Promise.all([getTaskBalance(id, curr), getBalance(wallet, wallet.addr, curr)]).then((rs) => {
         setBlanances(rs)
-        if (amount === "") {
-          setAmount(rs[0].value.replace(',', ''))
-        }
+        setBalancesLoading(false)
+      }, (reason) => {
+        setErrmsg(getErrmsg(reason))
+        setBalancesLoading(false)
       })
     }
   };
@@ -88,7 +87,7 @@ function ProjWithdraw() {
     setLoading(true)
     setErrmsg('')
     setTX(undefined)
-    withdraw(params.addr!, newValue(amount, currCurrency!), (s) => {
+    deposit(id!, newValue(amount, currCurrency!), (s) => {
       if (s.name === 'tx') {
         setTX(s.tx!)
       } else if (s.title) {
@@ -117,7 +116,7 @@ function ProjWithdraw() {
     }
   }
 
-  if (currCurrency && wallet && !balances) {
+  if (!errmsg && currCurrency && wallet && !balances && !balancesLoading) {
     updateWalletBalance()
   }
 
@@ -171,7 +170,7 @@ function ProjWithdraw() {
     <div className="container mx-auto min-w-fit max-w-xl">
       <div className='flex justify-end pt-4 align-middle'>
         <div className='truncate font-medium text-3xl text-gray-900 dark:text-white flex-1 flex flex-row items-center'>
-          Withdraw
+          Deposit
         </div>
       </div>
       {failureAlert}
@@ -202,48 +201,6 @@ function ProjWithdraw() {
             <div>
               <div className="mb-2 block">
                 <Label
-                  htmlFor="from"
-                  value="From"
-                />
-              </div>
-              <TextInput
-                id="from"
-                type="text"
-                value={params.addr}
-                readOnly={true}
-                addon={
-                  <Tooltip content={copyed ? 'Copyed!' : 'Copy'}>
-                    <CopyToClipboard text={params.addr || ""} onCopy={() => setCopyed(true)}>
-                      <BiCopyAlt className='inline-flex mx-2 cursor-pointer w-5 h-5'></BiCopyAlt>
-                    </CopyToClipboard>
-                  </Tooltip>
-                }
-              />
-            </div>
-            <div>
-              <div className="mb-2 block">
-                <Label
-                  htmlFor="to"
-                  value="To Owner"
-                />
-              </div>
-              <TextInput
-                id="to"
-                type="text"
-                value={owner ? owner : '--'}
-                readOnly={true}
-                addon={
-                  <Tooltip content={copyed ? 'Copyed!' : 'Copy'}>
-                    <CopyToClipboard text={owner || ""} onCopy={() => setCopyed(true)}>
-                      <BiCopyAlt className='inline-flex mx-2 cursor-pointer w-5 h-5'></BiCopyAlt>
-                    </CopyToClipboard>
-                  </Tooltip>
-                }
-              />
-            </div>
-            <div>
-              <div className="mb-2 block">
-                <Label
                   htmlFor="currentBalance"
                   value="Current Balance"
                 />
@@ -252,6 +209,21 @@ function ProjWithdraw() {
                 id="currentBalance"
                 type="text"
                 value={balances ? balances[0].value : '--'}
+                readOnly={true}
+                addon={currCurrency ? currCurrency.symbol : ""}
+              />
+            </div>
+            <div>
+              <div className="mb-2 block">
+                <Label
+                  htmlFor="walletBalance"
+                  value="Wallet Balance"
+                />
+              </div>
+              <TextInput
+                id="walletBalance"
+                type="text"
+                value={balances ? balances[1].value : '--'}
                 readOnly={true}
                 addon={currCurrency ? currCurrency.symbol : ""}
               />
@@ -275,9 +247,9 @@ function ProjWithdraw() {
                 disabled={loading}
               />
             </div>
-            <Button type="submit" disabled={loading || !currency || !owner}>
+            <Button type="submit" disabled={loading || !currency}>
               {loadingSpinner(true)}
-              {t(loading ? progress : 'Withdraw')}
+              {t(loading ? progress : 'Deposit')}
             </Button>
           </form>
         </Card>
@@ -286,4 +258,4 @@ function ProjWithdraw() {
   );
 }
 
-export default ProjWithdraw;
+export default TaskDeposit;

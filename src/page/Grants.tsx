@@ -113,6 +113,14 @@ function Grants() {
     </Button>
   }
 
+  let nodata = <></>
+
+  if ((!items || items.length === 0) && !loading) {
+    nodata = <div className='flex text-md pt-4  text-gray-900 dark:text-gray-300 justify-center items-center'>
+      {t('no data')}
+    </div>
+  }
+
   return (
     <div className="container mx-auto max-w-xs sm:max-w-xl">
       <div className='flex justify-end pt-4 align-middle'>
@@ -122,8 +130,10 @@ function Grants() {
         {createProject}
       </div>
       {failureAlert}
+
       <div className='pt-4'>
         <Card>
+          {nodata}
           {topLoadingSpinner(true)}
           <ProjList items={items || []}></ProjList>
           {bottomLoadingSpinner(true)}

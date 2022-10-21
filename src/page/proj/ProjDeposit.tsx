@@ -1,4 +1,4 @@
-import { Alert, Button, Card, Label, Select, Spinner, TextInput, Tooltip } from 'flowbite-react';
+import { Alert, Button, Card, Label, Select, Spinner, TextInput } from 'flowbite-react';
 import { useTranslation } from "../../i18n";
 import useWallet from '../../use/useWallet';
 import { setWalletChooses } from '../../use/useWalletChooses';
@@ -8,13 +8,11 @@ import { getErrmsg } from 'gudao-co-core/dist/error';
 import { useState } from 'react';
 import { HiInformationCircle } from 'react-icons/hi';
 import { TiTick } from 'react-icons/ti';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import useNetwork from '../../use/useNetwork';
 import { Currency, CurrencyValue, newValue } from 'gudao-co-core/dist/currency';
 import { getBalance } from 'gudao-co-core/dist/balance';
-import { deposit } from 'gudao-co-core/dist/project';
-import CopyToClipboard from 'react-copy-to-clipboard';
-import { BiCopyAlt } from 'react-icons/bi';
+import { deposit, getBalance as getProjectBalance } from 'gudao-co-core/dist/project';
 
 function ProjDeposit() {
   const { t } = useTranslation()
@@ -24,13 +22,20 @@ function ProjDeposit() {
   const [progress, setProgress] = useState('')
   const [errmsg, setErrmsg] = useState('')
   const [tx, setTX] = useState<TX>()
-  const params = useParams()
   const [searchParams,] = useSearchParams()
   const [network,] = useNetwork()
-  const [amount, setAmount] = useState(params.amount || '100')
+  const [amount, setAmount] = useState(searchParams.get('amount') || '100')
   const [currency, setCurrency] = useState<Currency>()
   const [balances, setBlanances] = useState<CurrencyValue[]>()
-  const [copyed, setCopyed] = useState(false)
+  const navigate = useNavigate()
+  const [balancesLoading, setBalancesLoading] = useState(false)
+
+  const id = searchParams.get('id')
+
+  if (!id) {
+    navigate('/')
+    return (<></>)
+  }
 
   if (!isReady) {
     return (<></>)
@@ -64,8 +69,13 @@ function ProjDeposit() {
       curr = currCurrency
     }
     if (curr && wallet) {
-      Promise.all([getBalance(wallet, params.addr!, curr), getBalance(wallet, wallet.addr, curr)]).then((rs) => {
+      setBalancesLoading(true)
+      Promise.all([getProjectBalance(id, curr), getBalance(wallet, wallet.addr, curr)]).then((rs) => {
         setBlanances(rs)
+        setBalancesLoading(false)
+      }, (reason) => {
+        setErrmsg(getErrmsg(reason))
+        setBalancesLoading(false)
       })
     }
   };
@@ -77,7 +87,7 @@ function ProjDeposit() {
     setLoading(true)
     setErrmsg('')
     setTX(undefined)
-    deposit(params.addr!, newValue(amount, currCurrency!), (s) => {
+    deposit(id!, newValue(amount, currCurrency!), (s) => {
       if (s.name === 'tx') {
         setTX(s.tx!)
       } else if (s.title) {
@@ -106,7 +116,7 @@ function ProjDeposit() {
     }
   }
 
-  if (currCurrency && wallet && !balances) {
+  if (!errmsg && currCurrency && wallet && !balances && !balancesLoading) {
     updateWalletBalance()
   }
 
@@ -187,27 +197,6 @@ function ProjDeposit() {
                   ))
                 }
               </Select>
-            </div>
-            <div>
-              <div className="mb-2 block">
-                <Label
-                  htmlFor="to"
-                  value="To"
-                />
-              </div>
-              <TextInput
-                id="to"
-                type="text"
-                value={params.addr}
-                readOnly={true}
-                addon={
-                  <Tooltip content={copyed ? 'Copyed!' : 'Copy'}>
-                    <CopyToClipboard text={params.addr || ""} onCopy={() => setCopyed(true)}>
-                      <BiCopyAlt className='inline-flex mx-2 cursor-pointer w-5 h-5'></BiCopyAlt>
-                    </CopyToClipboard>
-                  </Tooltip>
-                }
-              />
             </div>
             <div>
               <div className="mb-2 block">

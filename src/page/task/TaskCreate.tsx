@@ -3,14 +3,15 @@ import { useTranslation } from "../../i18n";
 import useWallet from '../../use/useWallet';
 import { setWalletChooses } from '../../use/useWalletChooses';
 import useWalletReady from '../../use/useWalletReady';
-import { createProject, Project } from 'gudao-co-core/dist/project';
+import { createTask, Task } from 'gudao-co-core/dist/task';
 import { TX } from 'gudao-co-core/dist/progress';
 import { getErrmsg } from 'gudao-co-core/dist/error';
 import { useState } from 'react';
 import { HiInformationCircle } from 'react-icons/hi';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { TiTick } from 'react-icons/ti';
-function ProjCreate() {
+
+function TaskCreate() {
   const { t } = useTranslation()
   const [wallet,] = useWallet()
   const [isReady,] = useWalletReady()
@@ -18,9 +19,11 @@ function ProjCreate() {
   const [progress, setProgress] = useState('')
   const [errmsg, setErrmsg] = useState('')
   const [tx, setTX] = useState<TX>()
-  const [project, setProject] = useState<Project>()
+  const [task, setTask] = useState<Task>()
   const navigate = useNavigate()
   const [gistURL, setGistURL] = useState('')
+  const [params,] = useSearchParams()
+  const proj_id = params.get('proj_id')
 
   if (!isReady) {
     return (<></>)
@@ -37,14 +40,14 @@ function ProjCreate() {
     }
     setLoading(true)
     setErrmsg('')
-    createProject({ gistURL: gistURL }, (s) => {
+    createTask({ gistURL: gistURL, proj_id: proj_id ? proj_id : undefined }, (s) => {
       if (s.name === 'tx') {
         setTX(s.tx!)
       } else if (s.title) {
         setProgress(s.title)
       }
     }).then((rs) => {
-      setProject(rs)
+      setTask(rs)
       setLoading(false)
     }, (reason) => {
       setErrmsg(getErrmsg(reason))
@@ -81,7 +84,7 @@ function ProjCreate() {
 
   let infoAlert = <></>
 
-  if (project) {
+  if (task) {
     infoAlert =
       <div className='pt-4'>
         <Alert
@@ -90,9 +93,9 @@ function ProjCreate() {
         >
           <span>
             <span className="font-medium">
-              {'Project: '}
+              {'Task: '}
             </span>
-            <a href={'/proj/' + project.id}>{project.erc721_name + '#' + project.id}</a>
+            <a href={'/task/' + task.id}>{task.erc721_name + '#' + task.id}</a>
             <span className="font-medium">
               {' waitting 6s redirect ...'}
             </span>
@@ -100,7 +103,7 @@ function ProjCreate() {
         </Alert>
       </div>
     setTimeout(() => {
-      navigate('/proj/' + project.id)
+      navigate('/task/' + task.id)
     }, 6000);
   } else if (tx) {
     infoAlert =
@@ -124,7 +127,7 @@ function ProjCreate() {
     <div className="container mx-auto max-w-xs sm:max-w-xl">
       <div className='flex justify-end pt-4 align-middle'>
         <div className='truncate font-medium text-3xl text-gray-900 dark:text-white flex-1 flex flex-row items-center'>
-          Create Project
+          {t('Create Task')}
         </div>
       </div>
       {failureAlert}
@@ -172,4 +175,4 @@ function ProjCreate() {
   );
 }
 
-export default ProjCreate;
+export default TaskCreate;
