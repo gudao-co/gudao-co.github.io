@@ -114,9 +114,11 @@ function TaskPage() {
                     <Logo addr={task!.erc721_name + '#' + task!.id} size="lg"></Logo>
                 </div>
                 <h5 className="mb-1 text-xl font-medium text-gray-900 dark:text-white">
-                    {task!.erc721_name}#{task!.id}
+                    {task!.metadata ? task!.metadata.name : `${task!.gist_user}/${task!.gist_id}`}
                 </h5>
-
+                <span className="text-sm text-gray-500 dark:text-gray-400">
+                    {task!.erc721_name}#{task!.id}
+                </span>
                 <ul className="divide-y divide-gray-200 dark:divide-gray-700 min-w-full">
                     <li className="py-3 sm:py-4 min-w-full cursor-pointer hover:opacity-75">
                         <Link className="flex items-center space-x-4" to={'/task/pulls?task_id=' + task!.id}>
@@ -162,6 +164,14 @@ function TaskPage() {
                     >
                         {t('Deposit')}
                     </Link>
+                    <a
+                        href={`https://gist.github.com/${task!.gist_user}/${task!.gist_id}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center rounded-lg border border-gray-300 bg-white py-2 px-4 text-center text-sm font-medium text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:hover:border-gray-700 dark:hover:bg-gray-700 dark:focus:ring-gray-700"
+                    >
+                        Gist
+                    </a>
                 </div>
             </div>
         </Card>

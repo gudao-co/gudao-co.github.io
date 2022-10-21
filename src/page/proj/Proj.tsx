@@ -115,9 +115,11 @@ function Proj() {
                     <Logo addr={project!.erc721_name + '#' + project!.id} size="lg"></Logo>
                 </div>
                 <h5 className="mb-1 text-xl font-medium text-gray-900 dark:text-white">
-                    {project!.erc721_name}#{project!.id}
+                    {project!.metadata ? project!.metadata.name : `${project!.gist_user}/${project!.gist_id}`}
                 </h5>
-
+                <span className="text-sm text-gray-500 dark:text-gray-400">
+                    {project!.erc721_name}#{project!.id}
+                </span>
                 <ul className="divide-y divide-gray-200 dark:divide-gray-700 min-w-full">
                     <li className="py-3 sm:py-4 min-w-full cursor-pointer hover:opacity-75">
                         <Link className="flex items-center space-x-4" to={'/proj/tasks?id=' + project!.id}>
@@ -163,6 +165,14 @@ function Proj() {
                     >
                         {t('Deposit')}
                     </Link>
+                    <a
+                        href={`https://gist.github.com/${project!.gist_user}/${project!.gist_id}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center rounded-lg border border-gray-300 bg-white py-2 px-4 text-center text-sm font-medium text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:hover:border-gray-700 dark:hover:bg-gray-700 dark:focus:ring-gray-700"
+                    >
+                        Gist
+                    </a>
                 </div>
             </div>
         </Card>

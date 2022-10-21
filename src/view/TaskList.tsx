@@ -17,6 +17,9 @@ function TaskList(props: {
                             </span>
                             <span className="min-w-0 flex-1">
                                 <p className="truncate text-lg font-medium text-gray-900 dark:text-white">
+                                    {item.metadata ? item.metadata.name : `${item.gist_user}/${item.gist_id}`}
+                                </p>
+                                <p className="truncate text-sm text-gray-500 dark:text-gray-400">
                                     {item.erc721_name}#{item.id}
                                 </p>
                             </span>

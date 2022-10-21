@@ -8,7 +8,6 @@ import {
 } from "react-router-dom";
 import Home from './page/Home';
 import Bounties from './page/Bounties';
-import Ability from './page/Ability';
 import WalletConnect from './view/WalletConnect';
 import Grants from './page/Grants';
 import WalletChooses from './view/WalletChooses';
@@ -23,6 +22,7 @@ import TaskCreate from './page/task/TaskCreate';
 import TaskPage from './page/task/Task';
 import TaskDeposit from './page/task/TaskDeposit';
 import ProjTasks from './page/proj/ProjTasks';
+import Skills from './page/Skills';
 
 function App() {
   const { t } = useTranslation()
@@ -42,8 +42,8 @@ function App() {
       href: '/bounties'
     },
     {
-      title: t('Ability'),
-      href: '/ability'
+      title: t('Skills'),
+      href: '/skills'
     }
   ];
 
@@ -121,7 +121,7 @@ function App() {
           <Route path="/" element={<Home></Home>}></Route>
           <Route path="/bounties" element={<Bounties></Bounties>}> </Route>
           <Route path="/grants" element={<Grants></Grants>}></Route>
-          <Route path="/ability" element={<Ability></Ability>}></Route>
+          <Route path="/skills" element={<Skills></Skills>}></Route>
           <Route path="/proj">
             <Route path="create" element={<ProjCreate></ProjCreate>}> </Route>
             <Route path="deposit" element={<ProjDeposit></ProjDeposit>}></Route>

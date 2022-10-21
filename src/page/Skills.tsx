@@ -1,17 +1,17 @@
 import { Alert, Button, Card, Spinner } from 'flowbite-react';
 import { getErrmsg } from 'gudao-co-core/dist/error';
 import { Page } from 'gudao-co-core/dist/page';
-import { Project, queryProjects } from 'gudao-co-core/dist/project';
+import { Skill, querySkills } from 'gudao-co-core/dist/skill';
 import { useTranslation } from "../i18n";
 import { useState } from 'react';
 import { HiInformationCircle } from 'react-icons/hi';
-import ProjList from '../view/ProjList';
 import { useNavigate } from 'react-router-dom';
 import useWallet from '../use/useWallet';
+import SKillList from '../view/SkillList';
 
-function Grants() {
+function Skills() {
 
-  const [items, setItems] = useState<Project[]>()
+  const [items, setItems] = useState<Skill[]>()
   const [loading, setLoading] = useState(false)
   const [page, setPage] = useState<Page>()
   const [errmsg, setErrmsg] = useState('')
@@ -27,7 +27,7 @@ function Grants() {
 
     setLoading(true)
 
-    queryProjects({ p: p, n: 20 }).then((rs) => {
+    querySkills({ p: p, n: 20 }).then((rs) => {
       if (p === 1) {
         setItems(rs.items)
       } else {
@@ -103,13 +103,13 @@ function Grants() {
     }
   }
 
-  let createProject = <></>
+  let createSkill = <></>
 
   if (wallet) {
-    createProject = <Button
-      onClick={() => navigate('/proj/create')}
+    createSkill = <Button
+      onClick={() => navigate('/skill/create')}
     >
-      {t('Create Project')}
+      {t('Create Skill')}
     </Button>
   }
 
@@ -125,9 +125,9 @@ function Grants() {
     <div className="container mx-auto max-w-xs sm:max-w-xl">
       <div className='flex justify-end pt-4 align-middle'>
         <div className='truncate font-medium text-3xl text-gray-900 dark:text-white flex-1 flex flex-row items-center'>
-          <span className="hidden sm:flex">Grants&nbsp;</span><span>Projects</span>
+        SKills
         </div>
-        {createProject}
+        {createSkill}
       </div>
       {failureAlert}
 
@@ -135,7 +135,7 @@ function Grants() {
         <Card>
           {nodata}
           {topLoadingSpinner(true)}
-          <ProjList items={items || []}></ProjList>
+          <SKillList items={items || []}></SKillList>
           {bottomLoadingSpinner(true)}
         </Card>
       </div>
@@ -143,4 +143,4 @@ function Grants() {
   );
 }
 
-export default Grants;
+export default Skills;

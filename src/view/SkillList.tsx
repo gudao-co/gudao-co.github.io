@@ -1,17 +1,17 @@
-import { Project } from 'gudao-co-core/dist/project';
+import { Skill } from 'gudao-co-core/dist/skill';
 import { HiOutlineChevronRight } from 'react-icons/hi';
 import { Link } from 'react-router-dom';
 import Logo from './Logo';
 
-function ProjList(props: {
-    items: Project[]
+function SKillList(props: {
+    items: Skill[]
 }) {
     return (
         <ul className="divide-y divide-gray-200 dark:divide-gray-700">
             {
                 props.items.map((item) => (
                     <li className="py-3 sm:py-4 hover:opacity-75" key={item.id}>
-                        <Link className="flex items-center space-x-4" to={"/proj/" + item.id}>
+                        <Link className="flex items-center space-x-4" to={"/task/" + item.id}>
                             <span className="shrink-0">
                                 <Logo addr={item!.erc721_name + '#' + item!.id} size="md"></Logo>
                             </span>
@@ -35,4 +35,4 @@ function ProjList(props: {
     );
 }
 
-export default ProjList;
+export default SKillList;
