@@ -11,7 +11,7 @@ function SKillList(props: {
             {
                 props.items.map((item) => (
                     <li className="py-3 sm:py-4 hover:opacity-75" key={item.id}>
-                        <Link className="flex items-center space-x-4" to={"/task/" + item.id}>
+                        <Link className="flex items-center space-x-4" to={"/skill/" + item.id}>
                             <span className="shrink-0">
                                 <Logo addr={item!.erc721_name + '#' + item!.id} size="md"></Logo>
                             </span>

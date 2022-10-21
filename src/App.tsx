@@ -23,6 +23,9 @@ import TaskPage from './page/task/Task';
 import TaskDeposit from './page/task/TaskDeposit';
 import ProjTasks from './page/proj/ProjTasks';
 import Skills from './page/Skills';
+import SkillPage from './page/skill/Skill';
+import SkillCreate from './page/skill/SkillCreate';
+import SkillDeposit from './page/skill/SkillDeposit';
 
 function App() {
   const { t } = useTranslation()
@@ -132,6 +135,11 @@ function App() {
             <Route path="create" element={<TaskCreate></TaskCreate>}> </Route>
             <Route path="deposit" element={<TaskDeposit></TaskDeposit>}></Route>
             <Route path=":id" element={<TaskPage></TaskPage>}> </Route>
+          </Route>
+          <Route path="skill">
+            <Route path="create" element={<SkillCreate></SkillCreate>}> </Route>
+            <Route path="deposit" element={<SkillDeposit></SkillDeposit>}></Route>
+            <Route path=":id" element={<SkillPage></SkillPage>}> </Route>
           </Route>
         </Routes>
       </div>
