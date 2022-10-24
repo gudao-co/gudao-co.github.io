@@ -5,7 +5,6 @@ export default {
         "Home": "Home",
         "Bounties": "Bounties",
         "Grants": "Grants",
-        "Ability": "Ability",
         "Language": "Language",
         "My Grants": "My Grants",
         "My Bounties": "My Bounties",
@@ -13,5 +12,6 @@ export default {
         "not implemented": "not implemented",
         "Connect Wallet": "Connect Wallet",
         "Log Out": "Log Out",
+        "Skills": "Skills",
     }
 } as any
