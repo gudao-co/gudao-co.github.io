@@ -71,10 +71,21 @@ function SkillPage() {
 
     if (skill && wallet) {
         grantButton = <Link
-            to={"/skill/grant?skill_id=" + skill!.id}
+            to={"/skill/grant?id=" + skill!.id}
             className="inline-flex items-center rounded-lg bg-blue-700 py-2 px-4 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
         >
-            {t('New pull request')}
+            {t('Grant')}
+        </Link>
+    }
+
+    let withdrawButton = <></>
+
+    if (skill && wallet && skill.owner.toLocaleLowerCase() === wallet.addr.toLocaleLowerCase()) {
+        withdrawButton = <Link
+            to={"/skill/withdraw?id=" + skill!.id}
+            className="inline-flex items-center rounded-lg border border-gray-300 bg-white py-2 px-4 text-center text-sm font-medium text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:hover:border-gray-700 dark:hover:bg-gray-700 dark:focus:ring-gray-700"
+        >
+            {t('Withdraw')}
         </Link>
     }
 
@@ -180,6 +191,7 @@ function SkillPage() {
                     >
                         {t('Deposit')}
                     </Link>
+                    {withdrawButton}
                     <a
                         href={`https://gist.github.com/${skill!.gist_user}/${skill!.gist_id}`}
                         target="_blank"

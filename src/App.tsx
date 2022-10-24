@@ -26,6 +26,8 @@ import Skills from './page/Skills';
 import SkillPage from './page/skill/Skill';
 import SkillCreate from './page/skill/SkillCreate';
 import SkillDeposit from './page/skill/SkillDeposit';
+import SkillWithdraw from './page/skill/SkillWithdraw';
+import SkillGrant from './page/skill/SkillGrant';
 
 function App() {
   const { t } = useTranslation()
@@ -139,6 +141,8 @@ function App() {
           <Route path="skill">
             <Route path="create" element={<SkillCreate></SkillCreate>}> </Route>
             <Route path="deposit" element={<SkillDeposit></SkillDeposit>}></Route>
+            <Route path="withdraw" element={<SkillWithdraw></SkillWithdraw>}></Route>
+            <Route path="grant" element={<SkillGrant></SkillGrant>}></Route>
             <Route path=":id" element={<SkillPage></SkillPage>}> </Route>
           </Route>
         </Routes>
