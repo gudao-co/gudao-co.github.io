@@ -113,7 +113,7 @@ function SkillGrant() {
   }
 
   return (
-    <div className="container mx-auto min-w-fit max-w-xl">
+    <div className="container mx-auto max-w-xs sm:max-w-xl">
       <div className='flex justify-end pt-4 align-middle'>
         <div className='truncate font-medium text-3xl text-gray-900 dark:text-white flex-1 flex flex-row items-center'>
           Grant

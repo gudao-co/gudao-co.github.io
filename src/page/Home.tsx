@@ -1,5 +1,4 @@
 import ReactEmbedGist from 'react-embed-gist';
-import { useTranslation } from "../i18n";
 
 function Home() {
   return (
