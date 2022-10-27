@@ -107,7 +107,7 @@ function Bounties() {
 
   if (wallet) {
     createTask = <Button
-      onClick={() => navigate('/proj/create')}
+      onClick={() => navigate('/task/create')}
     >
       {t('Create Task')}
     </Button>

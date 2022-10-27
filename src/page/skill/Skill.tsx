@@ -1,6 +1,6 @@
 import { Alert, Card, Spinner } from 'flowbite-react';
 import { getErrmsg } from 'gudao-co-core/dist/error';
-import { getSkill, Skill, getBalances } from 'gudao-co-core/dist/skill';
+import { getSkill, Skill, getBalances, SkillFeeRate, getFeeRates, getFeeRate } from 'gudao-co-core/dist/skill';
 import { useState } from 'react';
 import { HiInformationCircle, HiOutlineChevronRight } from 'react-icons/hi';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -32,6 +32,7 @@ function SkillPage() {
     const [wallet,] = useWallet()
     const [isReady,] = useWalletReady()
     const [balances, setBlanances] = useState<CurrencyValue[]>()
+    const [feeRates, setFeeRates] = useState<SkillFeeRate[]>()
 
     const id = params.id
 
@@ -92,6 +93,7 @@ function SkillPage() {
     let card = <></>
     let gist = <></>
     let failureAlert = <></>
+    let feeRatesView = <></>
 
     if (state === State.None || state === State.Loading) {
         card = <Card>
@@ -132,7 +134,7 @@ function SkillPage() {
                 </span>
                 <ul className="divide-y divide-gray-200 dark:divide-gray-700 min-w-full">
                     <li className="py-3 sm:py-4 min-w-full cursor-pointer hover:opacity-75">
-                        <Link className="flex items-center space-x-4" to={'/skill/tasks?skill_id=' + skill!.id}>
+                        <Link className="flex items-center space-x-4" to={'/skill/tasks?id=' + skill!.id}>
                             <span className="shrink-0">
                                 <Logo addr={skill!.erc721_name + '#' + skill!.id} size="sm"></Logo>
                             </span>
@@ -148,13 +150,13 @@ function SkillPage() {
                         </Link>
                     </li>
                     <li className="py-3 sm:py-4 min-w-full cursor-pointer hover:opacity-75">
-                        <Link className="flex items-center space-x-4" to={'/skill/grants?task_id=' + skill!.id}>
+                        <Link className="flex items-center space-x-4" to={'/skill/grants?id=' + skill!.id}>
                             <span className="shrink-0">
                                 <Logo addr={skill!.erc721_name + '#' + skill!.id} size="sm"></Logo>
                             </span>
                             <span className="min-w-0 flex-1">
                                 <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
-                                    User
+                                    Grant
                                 </p>
                             </span>
                             <span className="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
@@ -204,6 +206,75 @@ function SkillPage() {
             </div>
         </Card>
 
+        if (!feeRates && network && skill) {
+            getFeeRate(skill, network.currencys).then((rs) => {
+                setFeeRates(skill.feeRates!)
+            })
+        }
+
+        if (skill?.owner.toLocaleLowerCase() === wallet.addr.toLocaleLowerCase()) {
+            feeRatesView = <Card>
+                <div className="flex flex-col items-center">
+                    <h5 className="mb-1 text-xl font-medium text-gray-900 dark:text-white text-left">
+                        Fee Rate
+                    </h5>
+                    <ul className="divide-y divide-gray-200 dark:divide-gray-700 min-w-full">
+                        {
+                            network!.currencys.map((item, index) => (
+                                <li className="py-3 sm:py-4 min-w-full cursor-pointer hover:opacity-75" key={item.addr}>
+                                    <Link className="flex items-center space-x-4" to={"/skill/feerate?id=" + skill!.id + '&currency=' + item.addr}>
+                                        <span className="shrink-0">
+                                            <Logo addr={item.addr} size="sm"></Logo>
+                                        </span>
+                                        <span className="min-w-0 flex-1">
+                                            <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
+                                                {item.symbol}
+                                            </p>
+                                        </span>
+                                        <span className="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
+                                            <span>{feeRates ? (feeRates[index].enabled ? feeRates[index].rate + '%' : 'OFF') : '--'}</span>
+                                            <HiOutlineChevronRight className='ml-2'></HiOutlineChevronRight>
+                                        </span>
+                                    </Link>
+                                </li>
+                            ))
+                        }
+                    </ul>
+                </div>
+            </Card>
+        } else {
+            feeRatesView = <Card>
+                <div className="flex flex-col items-center">
+                    <h5 className="mb-1 text-xl font-medium text-gray-900 dark:text-white text-left">
+                        Fee Rate
+                    </h5>
+                    <ul className="divide-y divide-gray-200 dark:divide-gray-700 min-w-full">
+                        {
+                            network!.currencys.map((item, index) => (
+                                <li className="py-3 sm:py-4 min-w-full" key={item.addr}>
+                                    <div className="flex items-center space-x-4">
+                                        <span className="shrink-0">
+                                            <Logo addr={item.addr} size="sm"></Logo>
+                                        </span>
+                                        <span className="min-w-0 flex-1">
+                                            <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
+                                                {item.symbol}
+                                            </p>
+                                        </span>
+                                        <span className="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
+                                            <span>{feeRates ? (feeRates[index].enabled ? feeRates[index].rate + '%' : 'OFF') : '--'}</span>
+                                        </span>
+                                    </div>
+                                </li>
+                            ))
+                        }
+                    </ul>
+                </div>
+            </Card>
+        }
+
+
+
         gist = <Card>
             <ReactEmbedGist
                 gist={`${skill!.gist_user}/${skill!.gist_id}`}
@@ -228,6 +299,9 @@ function SkillPage() {
             {failureAlert}
             <div className='pt-4'>
                 {card}
+            </div>
+            <div className='pt-4'>
+                {feeRatesView}
             </div>
             <div className='pt-4'>
                 {gist}

@@ -3,17 +3,15 @@ import { useTranslation } from "../../i18n";
 import useWallet from '../../use/useWallet';
 import { setWalletChooses } from '../../use/useWalletChooses';
 import useWalletReady from '../../use/useWalletReady';
-import { createTask, Task } from 'gudao-co-core/dist/task';
 import { TX } from 'gudao-co-core/dist/progress';
 import { getErrmsg } from 'gudao-co-core/dist/error';
 import { useState } from 'react';
 import { HiInformationCircle } from 'react-icons/hi';
-import { useNavigate, useSearchParams } from 'react-router-dom';
 import { TiTick } from 'react-icons/ti';
-import SKillChooses from '../../view/SkillChooses';
-import { Skill } from 'gudao-co-core/dist/skill';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { unGrant } from 'gudao-co-core/dist/skill';
 
-function TaskCreate() {
+function SkillUnGrant() {
   const { t } = useTranslation()
   const [wallet,] = useWallet()
   const [isReady,] = useWalletReady()
@@ -21,12 +19,16 @@ function TaskCreate() {
   const [progress, setProgress] = useState('')
   const [errmsg, setErrmsg] = useState('')
   const [tx, setTX] = useState<TX>()
-  const [task, setTask] = useState<Task>()
+  const [searchParams,] = useSearchParams()
+  const [addr, setAddr] = useState(searchParams.get('addr') || '')
   const navigate = useNavigate()
-  const [gistURL, setGistURL] = useState('')
-  const [params,] = useSearchParams()
-  const proj_id = params.get('proj_id')
-  const [skills, setSkills] = useState<Skill[]>([])
+
+  const id = searchParams.get('id')
+
+  if (!id) {
+    navigate('/')
+    return (<></>)
+  }
 
   if (!isReady) {
     return (<></>)
@@ -37,24 +39,21 @@ function TaskCreate() {
     return (<></>)
   }
 
+
   const onSubmit = () => {
     if (loading) {
       return
     }
     setLoading(true)
     setErrmsg('')
-    let skillIds: string[] = []
-    for (let sk of skills) {
-      skillIds.push(sk.id)
-    }
-    createTask({ gistURL: gistURL, proj_id: proj_id ? proj_id : undefined, skillIds: skillIds }, (s) => {
+    setTX(undefined)
+    unGrant(id!, addr, (s) => {
       if (s.name === 'tx') {
         setTX(s.tx!)
       } else if (s.title) {
         setProgress(s.title)
       }
     }).then((rs) => {
-      setTask(rs)
       setLoading(false)
     }, (reason) => {
       setErrmsg(getErrmsg(reason))
@@ -91,32 +90,15 @@ function TaskCreate() {
 
   let infoAlert = <></>
 
-  if (task) {
+  let isAddress = ()=> {
+    return /(^0x[0-9a-fA-F]{40,40}$)|(\.ens$)/i.test(addr)
+  }
+
+  if (tx) {
     infoAlert =
       <div className='pt-4'>
         <Alert
-          color="info"
-          icon={HiInformationCircle}
-        >
-          <span>
-            <span className="font-medium">
-              {'Task: '}
-            </span>
-            <a href={'/task/' + task.id}>{task.erc721_name + '#' + task.id}</a>
-            <span className="font-medium">
-              {' waitting 6s redirect ...'}
-            </span>
-          </span>
-        </Alert>
-      </div>
-    setTimeout(() => {
-      navigate('/task/' + task.id)
-    }, 6000);
-  } else if (tx) {
-    infoAlert =
-      <div className='pt-4'>
-        <Alert
-          color="info"
+          color={loading ? 'info' : 'success'}
           icon={loading ? undefined : TiTick}
         >
           <span>
@@ -124,7 +106,7 @@ function TaskCreate() {
             <span className="font-medium align-middle">
               {'TX: '}
             </span>
-            <a href={tx.url} target="_blank" rel="noreferrer" className='align-middle'>{tx.hash.substring(0, 6) + '...' + tx.hash.substring(tx.hash.length - 6)}</a>
+            <a href={tx.url} target="_blank" rel="noreferrer" className='align-middle'>{tx.hash.substring(0, 12) + '...' + tx.hash.substring(tx.hash.length - 6)}</a>
           </span>
         </Alert>
       </div>
@@ -134,7 +116,7 @@ function TaskCreate() {
     <div className="container mx-auto max-w-xs sm:max-w-xl">
       <div className='flex justify-end pt-4 align-middle'>
         <div className='truncate font-medium text-3xl text-gray-900 dark:text-white flex-1 flex flex-row items-center'>
-          {t('Create Task')}
+          Grant
         </div>
       </div>
       {failureAlert}
@@ -145,58 +127,24 @@ function TaskCreate() {
             <div>
               <div className="mb-2 block">
                 <Label
-                  htmlFor="owner"
-                  value="Owner"
+                  htmlFor="addr"
+                  value="Wallet Address"
                 />
               </div>
               <TextInput
-                id="owner"
+                id="addr"
                 type="text"
-                readOnly={true}
-                value={wallet.addr}
+                value={addr}
+                color="info"
+                onChange={(e) => setAddr(e.currentTarget.value)}
+                placeholder="0x0000000000000000000000000000000000000000 / .ens"
+                required={true}
+                disabled={loading}
               />
             </div>
-            <div>
-              <div className="mb-2 block">
-                <Label
-                  htmlFor="owner"
-                  value="Owner"
-                />
-              </div>
-              <TextInput
-                id="owner"
-                type="text"
-                readOnly={true}
-                value={wallet.addr}
-              />
-            </div>
-            <div>
-              <div className="mb-2 block">
-                <Label
-                  htmlFor="skill"
-                  value="Skill"
-                />
-              </div>
-              <SKillChooses items={skills} onChange={(items) => setSkills(items)}></SKillChooses>
-            </div>
-            <div>
-              <div className="mb-2 block">
-                <Label
-                  htmlFor="gist"
-                  value="GIST URL"
-                />
-              </div>
-              <TextInput
-                id="gist"
-                type="text"
-                value={gistURL}
-                onChange={(e) => setGistURL(e.currentTarget.value)}
-                placeholder="https://gist.github.com/:USERNAME/:GIST_ID"
-              />
-            </div>
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading || !isAddress()}>
               {loadingSpinner(true)}
-              {t(loading ? progress : 'Create')}
+              {t(loading ? progress : 'Ungrant')}
             </Button>
           </form>
         </Card>
@@ -205,4 +153,4 @@ function TaskCreate() {
   );
 }
 
-export default TaskCreate;
+export default SkillUnGrant;

@@ -1,4 +1,4 @@
-import { Navbar, Flowbite, DarkThemeToggle, Footer, Alert } from 'flowbite-react';
+import { Navbar, Flowbite, DarkThemeToggle, Footer, Alert, Toast } from 'flowbite-react';
 import logo512 from './image/logo512.png';
 import { useTranslation } from "./i18n";
 import {
@@ -28,11 +28,17 @@ import SkillCreate from './page/skill/SkillCreate';
 import SkillDeposit from './page/skill/SkillDeposit';
 import SkillWithdraw from './page/skill/SkillWithdraw';
 import SkillGrant from './page/skill/SkillGrant';
+import useToast from './use/useToast';
+import SkillFeeRate from './page/skill/SkillFeeRate';
+import SkillGrants from './page/skill/SkillGrants';
+import SkillUnGrant from './page/skill/SkillUnGrant';
 
 function App() {
   const { t } = useTranslation()
   const navigate = useNavigate();
   const [alert, setAlert] = useAlert();
+  const [toast, setToast] = useToast();
+
   const items: { title: string, href: string }[] = [
     {
       title: t('Home'),
@@ -73,6 +79,31 @@ function App() {
       }, alert.duration)
     }
   }
+
+  let toastView = <></>
+
+  if (toast) {
+    let currToast = toast
+    toastView = <div className='fixed right-8 top-16'>
+      <Toast>
+        <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-orange-100 text-orange-500 dark:bg-orange-700 dark:text-orange-200">
+          {toast.icon}
+        </div>
+        <div className="ml-3 text-sm font-normal">
+          {toast.body}
+        </div>
+        <Toast.Toggle />
+      </Toast>
+    </div>
+    if (toast.duration) {
+      setTimeout(() => {
+        if (currToast === toast) {
+          setToast(undefined)
+        }
+      }, toast.duration)
+    }
+  }
+
 
   return (
     <Flowbite theme={{
@@ -143,6 +174,9 @@ function App() {
             <Route path="deposit" element={<SkillDeposit></SkillDeposit>}></Route>
             <Route path="withdraw" element={<SkillWithdraw></SkillWithdraw>}></Route>
             <Route path="grant" element={<SkillGrant></SkillGrant>}></Route>
+            <Route path="ungrant" element={<SkillUnGrant></SkillUnGrant>}></Route>
+            <Route path="grants" element={<SkillGrants></SkillGrants>}></Route>
+            <Route path="feerate" element={<SkillFeeRate></SkillFeeRate>}></Route>
             <Route path=":id" element={<SkillPage></SkillPage>}> </Route>
           </Route>
         </Routes>
@@ -160,6 +194,7 @@ function App() {
         </Footer.LinkGroup>
       </Footer>
       <WalletChooses></WalletChooses>
+      {toastView}
     </Flowbite >
   );
 }
