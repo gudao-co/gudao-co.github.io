@@ -184,18 +184,23 @@ function TaskPage() {
     }
 
     return (
-        <div className="container mx-auto max-w-xs sm:max-w-xl">
-            <div className='flex justify-end pt-4 align-middle'>
-                <div className='truncate font-medium text-3xl text-gray-900 dark:text-white flex-1 flex flex-row items-center'>
-                    Task
+        <div>
+            <div className="container mx-auto max-w-xs sm:max-w-xl p-4">
+                <div className='flex justify-end pt-4 align-middle'>
+                    <div className='truncate font-medium text-3xl text-gray-900 dark:text-white flex-1 flex flex-row items-center'>
+                        Task
+                    </div>
+                    {newPullRequest}
                 </div>
-                {newPullRequest}
+                {failureAlert}
+                <div className='pt-4'>
+                    {card}
+                </div>
+                <div className='pt-4'>
+                    {gist}
+                </div>
             </div>
-            {failureAlert}
-            <div className='pt-4'>
-                {card}
-            </div>
-            <div className='pt-4'>
+            <div className="container mx-auto max-w-xs sm:max-w-7xl p-4">
                 {gist}
             </div>
         </div>

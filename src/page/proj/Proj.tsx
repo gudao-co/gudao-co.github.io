@@ -185,18 +185,20 @@ function Proj() {
     }
 
     return (
-        <div className="container mx-auto max-w-xs sm:max-w-xl">
-            <div className='flex justify-end pt-4 align-middle'>
-                <div className='truncate font-medium text-3xl text-gray-900 dark:text-white flex-1 flex flex-row items-center'>
-                    Project
+        <div>
+            <div className="container mx-auto max-w-xs sm:max-w-xl p-4">
+                <div className='flex justify-end pt-4 align-middle'>
+                    <div className='truncate font-medium text-3xl text-gray-900 dark:text-white flex-1 flex flex-row items-center'>
+                        Project
+                    </div>
+                    {createTask}
                 </div>
-                {createTask}
+                {failureAlert}
+                <div className='pt-4'>
+                    {card}
+                </div>
             </div>
-            {failureAlert}
-            <div className='pt-4'>
-                {card}
-            </div>
-            <div className='pt-4'>
+            <div className="container mx-auto max-w-xs sm:max-w-7xl p-4">
                 {gist}
             </div>
         </div>
