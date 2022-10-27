@@ -1,6 +1,6 @@
 import { AlertColors } from "flowbite-react";
 import { nextTick } from "process";
-import { ComponentProps, Dispatch, FC, ReactNode, SetStateAction, useState } from "react";
+import { Dispatch, ReactNode, SetStateAction, useState } from "react";
 
 export interface ToastOptions {
     body: ReactNode

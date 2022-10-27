@@ -1,4 +1,4 @@
-import { Badge, Button, Spinner, TextInput, Toast } from 'flowbite-react';
+import { Badge, Button, Spinner, TextInput } from 'flowbite-react';
 import { getSkill, Skill } from 'gudao-co-core/dist/skill';
 import { getPreSkills } from 'gudao-co-core/dist/task';
 import { getFeeRates, getFeeRate } from 'gudao-co-core/dist/skill';
@@ -44,7 +44,7 @@ function SKillChooses(props: {
         if (loading) {
             return
         }
-        const vs = /^GUDAO\.CO\/SKILL\#([0-9]+)$/i.exec(text)
+        const vs = /^GUDAO\.CO\/SKILL#([0-9]+)$/i.exec(text)
         if (vs) {
 
             const id = vs[1]
@@ -132,7 +132,7 @@ function SKillChooses(props: {
                 placeholder="GUDAO.CO/SKILL#1"
                 onChange={(e) => { setInputSkill(e.currentTarget.value) }}
                 onKeyDown={(e) => {
-                    if (e.key == 'Enter') {
+                    if (e.key === 'Enter') {
                         e.preventDefault()
                         addSkill(inputSkill)
                         return false

@@ -1,6 +1,6 @@
 import { Alert, Card, Spinner } from 'flowbite-react';
 import { getErrmsg } from 'gudao-co-core/dist/error';
-import { getSkill, Skill, getBalances, SkillFeeRate, getFeeRates, getFeeRate } from 'gudao-co-core/dist/skill';
+import { getSkill, Skill, getBalances, SkillFeeRate, getFeeRate } from 'gudao-co-core/dist/skill';
 import { useState } from 'react';
 import { HiInformationCircle, HiOutlineChevronRight } from 'react-icons/hi';
 import { Link, useNavigate, useParams } from 'react-router-dom';
