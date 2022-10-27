@@ -2,6 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './css/index.css';
 import App from './App';
+import mermaid from 'mermaid';
+
 // import reportWebVitals from './reportWebVitals';
 import {
   BrowserRouter as Router,
@@ -10,6 +12,9 @@ import {
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
+
+mermaid.initialize({ startOnLoad: false, theme: 'dark' })
+
 root.render(
   <Router>
     <App />

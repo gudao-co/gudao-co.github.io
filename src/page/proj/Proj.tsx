@@ -12,8 +12,8 @@ import useWallet from '../../use/useWallet';
 import useWalletReady from '../../use/useWalletReady';
 import { setWalletChooses } from '../../use/useWalletChooses';
 import { CurrencyValue } from 'gudao-co-core/dist/currency';
-import ReactEmbedGist from 'react-embed-gist';
 import { nextTick } from 'process';
+import Markdown from '../../view/Markdown';
 
 enum State {
     None,
@@ -178,14 +178,8 @@ function Proj() {
         </Card>
 
         gist = <Card>
-            <ReactEmbedGist
-                gist={`${project!.gist_user}/${project!.gist_id}`}
-                wrapperClass="gist__bash"
-                loadingClass="mb-1 text-md font-medium text-gray-900 dark:text-white"
-                titleClass="gist__title"
-                errorClass="mb-1 text-md font-medium text-gray-900 dark:text-white"
-                contentClass="gist__content"
-                file="README.md"
+            <Markdown
+                src={`https://gist.githubusercontent.com/${project!.gist_user}/${project!.gist_id}/raw/README.md`}
             />
         </Card>
     }
