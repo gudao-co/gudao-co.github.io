@@ -196,9 +196,6 @@ function TaskPage() {
                 <div className='pt-4'>
                     {card}
                 </div>
-                <div className='pt-4'>
-                    {gist}
-                </div>
             </div>
             <div className="container mx-auto max-w-xs sm:max-w-7xl p-4">
                 {gist}
