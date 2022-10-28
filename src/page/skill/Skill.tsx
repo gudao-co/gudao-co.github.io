@@ -283,8 +283,8 @@ function SkillPage() {
     }
 
     return (
-        <div>
-            <div className="container mx-auto max-w-xs sm:max-w-xl p-4">
+        <>
+            <div className="container mx-auto max-w-xs sm:max-w-xl sm:p-4">
                 <div className='flex justify-end pt-4 align-middle '>
                     <div className='truncate font-medium text-3xl text-gray-900 dark:text-white flex-1 flex flex-row items-center'>
                         Skill
@@ -299,10 +299,10 @@ function SkillPage() {
                     {feeRatesView}
                 </div>
             </div>
-            <div className="container mx-auto max-w-xs sm:max-w-7xl p-4">
+            <div className="container mx-auto max-w-xs sm:max-w-7xl pt-4 sm:p-4">
             {gist}
             </div>
-        </div>
+        </>
     );
 }
 

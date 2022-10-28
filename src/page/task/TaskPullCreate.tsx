@@ -13,7 +13,7 @@ import { TiTick } from 'react-icons/ti';
 import SKillChooses from '../../view/SkillChooses';
 import { Skill } from 'gudao-co-core/dist/skill';
 
-function TaskCreate() {
+function TaskPullCreate() {
   const { t } = useTranslation()
   const [wallet,] = useWallet()
   const [isReady,] = useWalletReady()
@@ -134,7 +134,7 @@ function TaskCreate() {
     <div className="container mx-auto max-w-xs sm:max-w-xl sm:p-4">
       <div className='flex justify-end pt-4 align-middle'>
         <div className='truncate font-medium text-3xl text-gray-900 dark:text-white flex-1 flex flex-row items-center'>
-          {t('Create Task')}
+          {t('New Pull Request')}
         </div>
       </div>
       {failureAlert}
@@ -142,6 +142,20 @@ function TaskCreate() {
       <div className='pt-4'>
         <Card>
           <form className="flex flex-col gap-4" onSubmit={(e) => { e.preventDefault(); return onSubmit(); }}>
+            <div>
+              <div className="mb-2 block">
+                <Label
+                  htmlFor="owner"
+                  value="Owner"
+                />
+              </div>
+              <TextInput
+                id="owner"
+                type="text"
+                readOnly={true}
+                value={wallet.addr}
+              />
+            </div>
             <div>
               <div className="mb-2 block">
                 <Label
@@ -191,4 +205,4 @@ function TaskCreate() {
   );
 }
 
-export default TaskCreate;
+export default TaskPullCreate;

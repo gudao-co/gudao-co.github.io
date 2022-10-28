@@ -122,7 +122,7 @@ function SkillCreate() {
   }
 
   return (
-    <div className="container mx-auto max-w-xs sm:max-w-xl">
+    <div className="container mx-auto max-w-xs sm:max-w-xl sm:p-4">
       <div className='flex justify-end pt-4 align-middle'>
         <div className='truncate font-medium text-3xl text-gray-900 dark:text-white flex-1 flex flex-row items-center'>
           {t('Create Skill')}
