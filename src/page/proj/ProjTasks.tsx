@@ -1,7 +1,7 @@
 import { Alert, Button, Card, Spinner } from 'flowbite-react';
 import { getErrmsg } from 'gudao-co-core/dist/error';
 import { Page } from 'gudao-co-core/dist/page';
-import { Task, queryTasksByProj } from 'gudao-co-core/dist/task';
+import { Task, queryTasks } from 'gudao-co-core/dist/task';
 import { useTranslation } from "../../i18n";
 import { useState } from 'react';
 import { HiInformationCircle } from 'react-icons/hi';
@@ -38,7 +38,7 @@ function ProjTasks() {
 
         setLoading(true)
 
-        queryTasksByProj({ p: p, n: 20, proj_id: proj_id!}).then((rs) => {
+        queryTasks({ p: p, n: 20, proj_id: proj_id!}).then((rs) => {
             if (p === 1) {
                 setItems(rs.items)
             } else {
