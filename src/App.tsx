@@ -33,6 +33,7 @@ import SkillFeeRate from './page/skill/SkillFeeRate';
 import SkillGrants from './page/skill/SkillGrants';
 import SkillUnGrant from './page/skill/SkillUnGrant';
 import TaskPullCreate from './page/task/TaskPullCreate';
+import TaskPulls from './page/task/TaskPulls';
 
 function App() {
   const { t } = useTranslation()
@@ -169,6 +170,7 @@ function App() {
             <Route path="create" element={<TaskCreate></TaskCreate>}> </Route>
             <Route path="deposit" element={<TaskDeposit></TaskDeposit>}></Route>
             <Route path="pull/create" element={<TaskPullCreate></TaskPullCreate>}></Route>
+            <Route path="pulls" element={<TaskPulls></TaskPulls>}></Route>
             <Route path=":id" element={<TaskPage></TaskPage>}> </Route>
           </Route>
           <Route path="skill">

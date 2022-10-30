@@ -6,6 +6,7 @@ import Logo from './Logo';
 function SKillList(props: {
     items: Skill[]
 }) {
+
     return (
         <ul className="divide-y divide-gray-200 dark:divide-gray-700">
             {

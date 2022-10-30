@@ -21,18 +21,17 @@ function SKillChooses(props: {
     const [inputSkill, setInputSkill] = useState('')
     const [loading, setLoading] = useState(false)
 
+    if (!network) {
+        return <></>
+    }
+
     if (preSkills === undefined && !loading) {
         setLoading(true)
         getPreSkills().then((rs) => {
-            if (rs) {
+            getFeeRates(rs, network.currencys).then((rs) => {
                 setPreSkills(rs)
-                if (network) {
-                    getFeeRates(rs, network.currencys).then((rs) => {
-                        setPreSkills(rs)
-                    })
-                }
-            }
-            setLoading(false)
+                setLoading(false)
+            })
         })
     }
 
@@ -80,7 +79,7 @@ function SKillChooses(props: {
                     setSkills(vs)
                     setLoading(false)
                     setInputSkill('')
-                    if(props.onChange) {
+                    if (props.onChange) {
                         props.onChange(vs)
                     }
                 }, (reason) => {
@@ -93,7 +92,7 @@ function SKillChooses(props: {
                         icon: <HiExclamation></HiExclamation>,
                         duration: 1600
                     })
-                    if(props.onChange) {
+                    if (props.onChange) {
                         props.onChange(vs)
                     }
                 })
@@ -111,7 +110,7 @@ function SKillChooses(props: {
     const delSkill = (index: number) => {
         let vs = skills.slice(0, index).concat(skills.slice(index + 1))
         setSkills(vs)
-        if(props.onChange) {
+        if (props.onChange) {
             props.onChange(vs)
         }
     }
@@ -159,7 +158,7 @@ function SKillChooses(props: {
                                             <div>{item.erc721_name}#{item.id}</div>
                                             <div className="flex flex-wrap gap-2">
                                                 {
-                                                    (item.feeRates || []).filter((item)=>{
+                                                    (item.feeRates || []).filter((item) => {
                                                         return item.enabled
                                                     }).map((feeRate) => (
                                                         <Badge key={feeRate.currency.addr}>{feeRate.rate}% {feeRate.currency.symbol}</Badge>

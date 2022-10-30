@@ -3,18 +3,17 @@ import { useTranslation } from "../../i18n";
 import useWallet from '../../use/useWallet';
 import { setWalletChooses } from '../../use/useWalletChooses';
 import useWalletReady from '../../use/useWalletReady';
-import { getSkills, setPullRequest, Task } from 'gudao-co-core/dist/task';
+import { createTask, Task } from 'gudao-co-core/dist/task';
 import { TX } from 'gudao-co-core/dist/progress';
 import { getErrmsg } from 'gudao-co-core/dist/error';
 import { useState } from 'react';
-import { HiBadgeCheck, HiInformationCircle } from 'react-icons/hi';
+import { HiInformationCircle } from 'react-icons/hi';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { TiTick } from 'react-icons/ti';
-import { nextTick } from 'process';
+import SKillChooses from '../../view/SkillChooses';
 import { Skill } from 'gudao-co-core/dist/skill';
-import SkillIsGrant from '../../view/SkillIsGrant';
 
-function TaskPullCreate() {
+function TaskPulls() {
   const { t } = useTranslation()
   const [wallet,] = useWallet()
   const [isReady,] = useWalletReady()
@@ -24,18 +23,10 @@ function TaskPullCreate() {
   const [tx, setTX] = useState<TX>()
   const [task, setTask] = useState<Task>()
   const navigate = useNavigate()
-  const [pullRequestURL, setPullRequestURL] = useState('')
+  const [gistURL, setGistURL] = useState('')
   const [params,] = useSearchParams()
-  const task_id = params.get('task_id')
-  const [skills, setSkills] = useState<Skill[]>()
-  const [loadingSkills, setLoadingSkills] = useState(false)
-
-  if (!task_id) {
-    nextTick(() => {
-      navigate('/')
-    })
-    return (<></>)
-  }
+  const proj_id = params.get('proj_id')
+  const [skills, setSkills] = useState<Skill[]>([])
 
   if (!isReady) {
     return (<></>)
@@ -46,21 +37,17 @@ function TaskPullCreate() {
     return (<></>)
   }
 
-  if (skills === undefined && !loadingSkills) {
-    setLoadingSkills(true)
-    getSkills(task_id).then((rs) => {
-      setLoadingSkills(false)
-      setSkills(rs)
-    })
-  }
-
   const onSubmit = () => {
     if (loading) {
       return
     }
     setLoading(true)
     setErrmsg('')
-    setPullRequest(task_id!, pullRequestURL, (s) => {
+    let skillIds: string[] = []
+    for (let sk of skills) {
+      skillIds.push(sk.id)
+    }
+    createTask({ gistURL: gistURL, proj_id: proj_id ? proj_id : undefined, skillIds: skillIds }, (s) => {
       if (s.name === 'tx') {
         setTX(s.tx!)
       } else if (s.title) {
@@ -123,7 +110,7 @@ function TaskPullCreate() {
         </Alert>
       </div>
     setTimeout(() => {
-      navigate('/task/pulls?task_id=' + task.id + '&owner=' + wallet.addr.toLocaleLowerCase())
+      navigate('/task/' + task.id)
     }, 6000);
   } else if (tx) {
     infoAlert =
@@ -143,25 +130,11 @@ function TaskPullCreate() {
       </div>
   }
 
-  let loadingSkillsView = <></>
-
-  if (loadingSkills) {
-    loadingSkillsView = <div className='flex flex-row items-center justify-start gap-2'>
-      <Spinner size="sm" style={{ lineHeight: "100%" }} color="success"></Spinner>
-      <span className="text-sm">{t("Check ...")}</span>
-    </div>
-  } else if (skills && skills.length === 0) {
-    loadingSkillsView = <div className='flex flex-row items-center justify-start gap-2 text-sm'>
-      <HiBadgeCheck></HiBadgeCheck>
-      <span className="text-sm">{t("Checked")}</span>
-    </div >
-  }
-
   return (
     <div className="container mx-auto max-w-xs sm:max-w-xl sm:p-4">
       <div className='flex justify-end pt-4 align-middle'>
         <div className='truncate font-medium text-3xl text-gray-900 dark:text-white flex-1 flex flex-row items-center'>
-          {t('New Pull Request')}
+          {t('Create Task')}
         </div>
       </div>
       {failureAlert}
@@ -186,38 +159,30 @@ function TaskPullCreate() {
             <div>
               <div className="mb-2 block">
                 <Label
-                  htmlFor="skills"
-                  value="Skills"
+                  htmlFor="skill"
+                  value="Skill"
                 />
               </div>
-              {loadingSkillsView}
-              <ul id="skills" className="divide-y divide-gray-200 dark:divide-gray-700">
-                {
-                  (skills || []).map((item) => (
-                    <SkillIsGrant skill={item} owner={wallet.addr} key={item.id}></SkillIsGrant>
-                  ))
-                }
-              </ul>
+              <SKillChooses items={skills} onChange={(items) => setSkills(items)}></SKillChooses>
             </div>
-
             <div>
               <div className="mb-2 block">
                 <Label
-                  htmlFor="pullRequestURL"
-                  value="Github Pull Request URL"
+                  htmlFor="gist"
+                  value="GIST URL"
                 />
               </div>
               <TextInput
-                id="pullRequestURL"
+                id="gist"
                 type="text"
-                value={pullRequestURL}
-                onChange={(e) => setPullRequestURL(e.currentTarget.value)}
-                placeholder="https://github.com/:USERNAME/:REPO/pull/:PULL_ID"
+                value={gistURL}
+                onChange={(e) => setGistURL(e.currentTarget.value)}
+                placeholder="https://gist.github.com/:USERNAME/:GIST_ID"
               />
             </div>
             <Button type="submit" disabled={loading}>
               {loadingSpinner(true)}
-              {t(loading ? progress : 'Submit')}
+              {t(loading ? progress : 'Create')}
             </Button>
           </form>
         </Card>
@@ -226,4 +191,4 @@ function TaskPullCreate() {
   );
 }
 
-export default TaskPullCreate;
+export default TaskPulls;
