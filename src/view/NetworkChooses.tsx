@@ -1,13 +1,13 @@
 import { Dropdown, Spinner } from 'flowbite-react';
 import { switchNetwork } from 'gudao-co-core/dist/wallet';
-import { ReactNode, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Network, Networks } from 'gudao-co-core/dist/network';
 import useWallet from '../use/useWallet';
 import useWalletReady from '../use/useWalletReady';
 import useNetwork from '../use/useNetwork';
 
 function NetworkChooses(props: {
-    className:string
+    className: string
 }) {
     const [wallet,] = useWallet()
     const [isReady,] = useWalletReady()
