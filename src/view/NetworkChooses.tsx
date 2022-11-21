@@ -39,7 +39,7 @@ function NetworkChooses() {
     }
 
     return (
-        <div className='hidden sm:flex'>
+        <div className=''>
             <Dropdown
                 arrowIcon={false}
                 inline={true}
