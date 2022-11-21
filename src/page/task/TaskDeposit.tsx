@@ -12,7 +12,20 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import useNetwork from '../../use/useNetwork';
 import { Currency, CurrencyValue, newValue } from 'gudao-co-core/dist/currency';
 import { getBalance } from 'gudao-co-core/dist/balance';
-import { deposit, getBalance as getTaskBalance } from 'gudao-co-core/dist/task';
+import { deposit, getBalance as getTaskBalance, TaskProject, getTaskProject } from 'gudao-co-core/dist/task';
+import { getBalance as getProjectBlanance } from 'gudao-co-core/dist/project';
+
+enum PaySourceType {
+  WALLET,
+  PROJECT
+}
+
+interface PaySource {
+  type: PaySourceType
+  addr?: string
+  proj_id?: string
+  title?: string
+}
 
 function TaskDeposit() {
   const { t } = useTranslation()
@@ -29,6 +42,10 @@ function TaskDeposit() {
   const [balances, setBlanances] = useState<CurrencyValue[]>()
   const navigate = useNavigate()
   const [balancesLoading, setBalancesLoading] = useState(false)
+  const [taskProject, setTaskProject] = useState<TaskProject>()
+  const [taskProjectLoading, setTaskProjectLoading] = useState(false)
+  const [currPaySource, setCurrPaySource] = useState<PaySource>()
+  const [paySources, setPaySources] = useState<PaySource[]>()
 
   const id = searchParams.get('id')
 
@@ -43,6 +60,40 @@ function TaskDeposit() {
 
   if (!wallet) {
     setWalletChooses({ allowClosed: false })
+    return (<></>)
+  }
+
+  if (!taskProject && !errmsg) {
+    if (!taskProjectLoading) {
+      setTaskProjectLoading(true)
+      getTaskProject(id).then((rs) => {
+        setTaskProject(rs)
+        setTaskProjectLoading(false)
+        if (rs.proj_id && rs.proj_owner && rs.proj_owner.toLocaleLowerCase() === wallet.addr.toLocaleLowerCase()) {
+          let items = [{
+            title: `${rs.proj_erc_name}#${rs.proj_id}`,
+            type: PaySourceType.PROJECT,
+            proj_id: rs.proj_id
+          }, {
+            title: `${wallet.addr}`,
+            type: PaySourceType.WALLET,
+            addr: wallet.addr
+          }]
+          setPaySources(items)
+          setCurrPaySource(items[0])
+        } else {
+          let items = [{
+            title: `${wallet.addr}`,
+            type: PaySourceType.WALLET,
+            addr: wallet.addr
+          }]
+          setPaySources(items)
+          setCurrPaySource(items[0])
+        }
+      }, (reason) => {
+        setTaskProjectLoading(false)
+      })
+    }
     return (<></>)
   }
 
@@ -70,7 +121,11 @@ function TaskDeposit() {
     }
     if (curr && wallet) {
       setBalancesLoading(true)
-      Promise.all([getTaskBalance(id, curr), getBalance(wallet, wallet.addr, curr)]).then((rs) => {
+      let vs = [getTaskBalance(id, curr), getBalance(wallet, wallet.addr, curr)]
+      if (taskProject && taskProject.proj_id) {
+        vs.push(getProjectBlanance(taskProject.proj_id, curr))
+      }
+      Promise.all(vs).then((rs) => {
         setBlanances(rs)
         setBalancesLoading(false)
       }, (reason) => {
@@ -87,7 +142,7 @@ function TaskDeposit() {
     setLoading(true)
     setErrmsg('')
     setTX(undefined)
-    deposit(id!, newValue(amount, currCurrency!), (s) => {
+    deposit(id!, newValue(amount, currCurrency!), currPaySource ? currPaySource.proj_id : undefined, (s) => {
       if (s.name === 'tx') {
         setTX(s.tx!)
       } else if (s.title) {
@@ -201,6 +256,48 @@ function TaskDeposit() {
             <div>
               <div className="mb-2 block">
                 <Label
+                  htmlFor="paySource"
+                  value="Pay Source"
+                />
+              </div>
+              <Select id="paySource"
+                value={currPaySource ? currPaySource.type : ''}
+                onChange={(e) => {
+                  for (let item of paySources!) {
+                    if (item.type.toString() === e.currentTarget.value) {
+                      setCurrPaySource(item)
+                      break
+                    }
+                  }
+                }}
+                required={true}
+                disabled={taskProjectLoading}
+                color="info">
+                {
+                  (paySources || []).map(item => (
+                    <option value={item.type} key={item.type}>{item.title}</option>
+                  ))
+                }
+              </Select>
+            </div>
+            <div>
+              <div className="mb-2 block">
+                <Label
+                  htmlFor="walletBalance"
+                  value={currPaySource && currPaySource.type == PaySourceType.PROJECT ? "Project Balance" : "Wallet Balance"}
+                />
+              </div>
+              <TextInput
+                id="walletBalance"
+                type="text"
+                value={balances ? balances[currPaySource && currPaySource.type === PaySourceType.PROJECT ? 2 : 1].value : '--'}
+                readOnly={true}
+                addon={currCurrency ? currCurrency.symbol : ""}
+              />
+            </div>
+            <div>
+              <div className="mb-2 block">
+                <Label
                   htmlFor="currentBalance"
                   value="Current Balance"
                 />
@@ -209,21 +306,6 @@ function TaskDeposit() {
                 id="currentBalance"
                 type="text"
                 value={balances ? balances[0].value : '--'}
-                readOnly={true}
-                addon={currCurrency ? currCurrency.symbol : ""}
-              />
-            </div>
-            <div>
-              <div className="mb-2 block">
-                <Label
-                  htmlFor="walletBalance"
-                  value="Wallet Balance"
-                />
-              </div>
-              <TextInput
-                id="walletBalance"
-                type="text"
-                value={balances ? balances[1].value : '--'}
                 readOnly={true}
                 addon={currCurrency ? currCurrency.symbol : ""}
               />
