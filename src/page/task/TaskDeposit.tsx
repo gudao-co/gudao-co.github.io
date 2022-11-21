@@ -284,7 +284,7 @@ function TaskDeposit() {
               <div className="mb-2 block">
                 <Label
                   htmlFor="walletBalance"
-                  value={currPaySource && currPaySource.type == PaySourceType.PROJECT ? "Project Balance" : "Wallet Balance"}
+                  value={currPaySource && currPaySource.type === PaySourceType.PROJECT ? "Project Balance" : "Wallet Balance"}
                 />
               </div>
               <TextInput
