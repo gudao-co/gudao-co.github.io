@@ -34,6 +34,7 @@ import SkillGrants from './page/skill/SkillGrants';
 import SkillUnGrant from './page/skill/SkillUnGrant';
 import TaskPullCreate from './page/task/TaskPullCreate';
 import TaskPulls from './page/task/TaskPulls';
+import NetworkChooses from './view/NetworkChooses';
 
 function App() {
   const { t } = useTranslation()
@@ -143,12 +144,14 @@ function App() {
               </Navbar.Link>
             ))
           }
+          <NetworkChooses className='sm:hidden pl-3'></NetworkChooses>
+          <LanguageChooses className='sm:hidden'></LanguageChooses>
           <div className='p-2 sm:p-0'></div>
         </Navbar.Collapse>
         <div className="flex items-center flex-nowrap">
+          <DarkThemeToggle />
           <div className='mr-1 hidden sm:flex'>
-            <DarkThemeToggle />
-            <LanguageChooses></LanguageChooses>
+            <LanguageChooses className='hidden sm:flex'></LanguageChooses>
           </div>
           <WalletConnect></WalletConnect>
         </div>

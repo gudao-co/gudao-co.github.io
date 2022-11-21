@@ -1,13 +1,14 @@
 import { Dropdown, Spinner } from 'flowbite-react';
 import { switchNetwork } from 'gudao-co-core/dist/wallet';
-import { useRef, useState } from 'react';
+import { ReactNode, useRef, useState } from 'react';
 import { Network, Networks } from 'gudao-co-core/dist/network';
 import useWallet from '../use/useWallet';
 import useWalletReady from '../use/useWalletReady';
 import useNetwork from '../use/useNetwork';
-import React from 'react';
 
-function NetworkChooses() {
+function NetworkChooses(props: {
+    className:string
+}) {
     const [wallet,] = useWallet()
     const [isReady,] = useWalletReady()
     const [network,] = useNetwork()
@@ -39,7 +40,7 @@ function NetworkChooses() {
     }
 
     return (
-        <div className=''>
+        <div className={props.className}>
             <Dropdown
                 arrowIcon={false}
                 inline={true}

@@ -46,7 +46,7 @@ function WalletConnect() {
 
     return (
         <div className='flex flex-row flex-nowrap'>
-            <NetworkChooses></NetworkChooses>
+            <NetworkChooses className='hidden sm:flex'></NetworkChooses>
             <div className="px-2"></div>
             <Dropdown
                 arrowIcon={false}

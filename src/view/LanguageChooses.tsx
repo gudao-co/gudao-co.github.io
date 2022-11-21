@@ -2,10 +2,12 @@ import { Dropdown } from 'flowbite-react';
 import { useRef, useState } from 'react';
 import { Language, Languages, setLang, lang } from '../i18n';
 
-function LanguageChooses() {
+function LanguageChooses(props: {
+    className: string
+}) {
 
     const dropdown = useRef<HTMLDivElement>(null)
-    const [current,setCurrent] = useState(lang)
+    const [current, setCurrent] = useState(lang)
 
     const setHidden = () => {
         if (dropdown.current) {
@@ -20,7 +22,7 @@ function LanguageChooses() {
     }
 
     return (
-        <div className='hidden sm:flex'>
+        <div className={props.className}>
             <Dropdown
                 arrowIcon={false}
                 inline={true}
