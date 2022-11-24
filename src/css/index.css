@@ -8,3 +8,9 @@
     border-radius: 15px;
     overflow: hidden;
 }
+
+article p img {
+    display: inline-block;
+    margin-top: 4px;
+    margin-bottom: 4px;
+}
