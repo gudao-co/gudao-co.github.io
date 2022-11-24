@@ -195,9 +195,13 @@ function App() {
           year={2022}
         />
         <Footer.LinkGroup>
-          <Footer.Icon href="https://t.me/gudao_co" target="_blank" icon={TbBrandTelegram}></Footer.Icon>
+          <a href="https://t.me/gudao_co" target="_blank">
+            <Footer.Icon icon={TbBrandTelegram}></Footer.Icon>
+          </a>
           <span className='px-2'></span>
-          <Footer.Icon href="mailto:info@gudao.co" target="_blank" icon={HiOutlineMail}></Footer.Icon>
+          <a href="mailto:info@gudao.co" target="_blank">
+            <Footer.Icon icon={HiOutlineMail}></Footer.Icon>
+          </a>
         </Footer.LinkGroup>
       </Footer>
       <WalletChooses></WalletChooses>
